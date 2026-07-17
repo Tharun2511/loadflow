@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String        @id @default(uuid())
+  email          String        @unique
+  passwordHash   String
+  name           String?
+  type           String        // "BROKER", "CARRIER", "SHIPPER"
+  
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  
+  roleId         String?
+  role           Role?         @relation(fields: [roleId], references: [id])
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  loadsAsShipper Load[]        @relation("ShipperLoads")
+  auditLogs      LoadAuditLog[]
+}
+
+model Organization {
+  id                String             @id @default(uuid())
+  name              String
+  type              String             // "BROKER", "CARRIER"
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  users             User[]
+  roles             Role[]
+  
+  // Broker specific
+  loadsAsBroker     Load[]             @relation("BrokerLoads")
+  
+  // Carrier specific
+  loadsAsCarrier    Load[]             @relation("CarrierLoads")
+  carrierCompliance CarrierCompliance?
+}
+
+model Role {
+  id             String       @id @default(uuid())
+  name           String
+  permissions    String       // JSON string of permissions array e.g. '["load.create"]'
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  users          User[]
+  
+  @@unique([name, organizationId])
+}
+
+model CarrierCompliance {
+  id              String       @id @default(uuid())
+  carrierOrgId    String       @unique
+  carrierOrg      Organization @relation(fields: [carrierOrgId], references: [id])
+  insuranceExpiry DateTime
+  mcDotStatus     String       // "ACTIVE", "INACTIVE", "PENDING"
+  equipmentTypes  String       // JSON array of strings e.g. '["VAN", "REEFER"]'
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Load {
+  id              String       @id @default(uuid())
+  origin          String
+  destination     String
+  status          String       // "POSTED", "CARRIER_ASSIGNED", "RATE_CONFIRMED", "DISPATCHED", "IN_TRANSIT", "DELIVERED", "POD_VERIFIED", "CLOSED"
+  complianceFlag  Boolean      @default(false)
+  
+  shipperId       String
+  shipper         User         @relation("ShipperLoads", fields: [shipperId], references: [id])
+  
+  brokerOrgId     String
+  brokerOrg       Organization @relation("BrokerLoads", fields: [brokerOrgId], references: [id])
+  
+  carrierOrgId    String?
+  carrierOrg      Organization? @relation("CarrierLoads", fields: [carrierOrgId], references: [id])
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  rateConfirmations RateConfirmation[]
+  auditLogs         LoadAuditLog[]
+}
+
+model LoadAuditLog {
+  id           String   @id @default(uuid())
+  loadId       String
+  load         Load     @relation(fields: [loadId], references: [id])
+  oldStatus    String
+  newStatus    String
+  changedById  String
+  changedBy    User     @relation(fields: [changedById], references: [id])
+  timestamp    DateTime @default(now())
+}
+
+model RateConfirmation {
+  id           String   @id @default(uuid())
+  loadId       String
+  load         Load     @relation(fields: [loadId], references: [id])
+  version      Int
+  baseRate     Float
+  accessorials Float    @default(0.0)
+  status       String   // "PENDING", "CONFIRMED"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([loadId, version])
+}

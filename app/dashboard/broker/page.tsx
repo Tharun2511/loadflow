@@ -1,0 +1,178 @@
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { PrismaClient } from "@prisma/client"
+import { createLoad, assignCarrier, overrideCompliance, confirmRate } from "@/app/actions/load"
+import { AlertTriangle, CheckCircle2, Clock, Plus, ShieldAlert, Truck } from "lucide-react"
+
+const prisma = new PrismaClient()
+
+export default async function BrokerDashboard() {
+  const session = await getServerSession(authOptions)
+  const user = session?.user
+
+  if (!user || user.type !== 'BROKER' || !user.organizationId) {
+    return null
+  }
+
+  const loads = await prisma.load.findMany({
+    where: { brokerOrgId: user.organizationId },
+    include: {
+      shipper: true,
+      carrierOrg: true,
+      rateConfirmations: {
+        orderBy: { version: 'desc' },
+        take: 1
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  })
+
+  const carriers = await prisma.organization.findMany({
+    where: { type: 'CARRIER' },
+    include: { carrierCompliance: true }
+  })
+
+  const shippers = await prisma.user.findMany({
+    where: { type: 'SHIPPER' }
+  })
+
+  const hasPermission = (perm: string) => user.rolePermissions?.includes(perm)
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Load Board</h1>
+          <p className="text-slate-400 mt-1">Manage and track all shipments for your brokerage.</p>
+        </div>
+        
+        {hasPermission('load.create') && (
+          <form action={async (formData) => {
+            "use server"
+            const origin = formData.get('origin') as string
+            const destination = formData.get('destination') as string
+            const shipperId = formData.get('shipperId') as string
+            await createLoad({ origin, destination, shipperId })
+          }} className="flex items-center gap-3 bg-slate-900/50 p-2 rounded-xl border border-white/10">
+            <input type="text" name="origin" placeholder="Origin" required className="px-3 py-2 rounded-lg bg-slate-800 border border-white/10 text-sm text-white" />
+            <input type="text" name="destination" placeholder="Destination" required className="px-3 py-2 rounded-lg bg-slate-800 border border-white/10 text-sm text-white" />
+            <select name="shipperId" required className="px-3 py-2 rounded-lg bg-slate-800 border border-white/10 text-sm text-white">
+              <option value="">Select Shipper...</option>
+              {shippers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors flex items-center gap-2">
+              <Plus size={16} /> Post Load
+            </button>
+          </form>
+        )}
+      </div>
+
+      <div className="grid gap-4">
+        {loads.map(load => {
+          const latestRate = load.rateConfirmations[0]
+          
+          return (
+            <div key={load.id} className="bg-slate-900/40 border border-white/10 rounded-2xl p-6 transition-all hover:bg-slate-900/60 hover:border-white/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
+                    <Truck size={24} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg font-bold text-white">{load.origin} &rarr; {load.destination}</span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${
+                        load.status === 'POSTED' ? 'bg-slate-500/20 text-slate-400' :
+                        load.status === 'CARRIER_ASSIGNED' ? 'bg-amber-500/20 text-amber-400' :
+                        load.status === 'DELIVERED' || load.status === 'CLOSED' ? 'bg-emerald-500/20 text-emerald-400' :
+                        'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {load.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-400">Shipper: <span className="text-slate-300">{load.shipper.name}</span></p>
+                  </div>
+                </div>
+                
+                {load.complianceFlag && (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium">
+                    <ShieldAlert size={16} />
+                    Compliance Issue
+                    {hasPermission('load.override_compliance_flag') && (
+                      <form action={async () => {
+                        "use server"
+                        await overrideCompliance(load.id)
+                      }}>
+                        <button type="submit" className="ml-2 px-2 py-1 bg-red-500/20 hover:bg-red-500/30 rounded text-xs transition-colors">
+                          Override
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-8 pt-4 border-t border-white/5">
+                <div>
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Carrier Assignment</h4>
+                  {load.carrierOrg ? (
+                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                      <CheckCircle2 size={16} className="text-emerald-500" />
+                      Assigned to <span className="font-semibold text-white">{load.carrierOrg.name}</span>
+                    </div>
+                  ) : (
+                    hasPermission('load.assign_carrier') ? (
+                      <form action={async (formData) => {
+                        "use server"
+                        await assignCarrier(load.id, formData.get('carrierId') as string)
+                      }} className="flex gap-2">
+                        <select name="carrierId" required className="flex-1 px-3 py-2 rounded-lg bg-slate-800 border border-white/10 text-sm text-white focus:outline-none focus:border-indigo-500">
+                          <option value="">Select Carrier...</option>
+                          {carriers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                        <button type="submit" className="px-3 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 font-medium text-sm transition-colors">
+                          Assign
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="text-sm text-slate-500 italic">Not assigned</p>
+                    )
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Rate Confirmation</h4>
+                  {latestRate ? (
+                    <div className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3 border border-white/5">
+                      <div>
+                        <p className="text-sm text-slate-300">Total: <span className="font-bold text-white">${latestRate.baseRate + latestRate.accessorials}</span></p>
+                        <p className="text-xs text-slate-500">v{latestRate.version} • {latestRate.status}</p>
+                      </div>
+                      {latestRate.status === 'PENDING' && hasPermission('rate.confirm') && !load.complianceFlag && (
+                        <form action={async () => {
+                          "use server"
+                          await confirmRate(latestRate.id)
+                        }}>
+                          <button type="submit" className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-medium text-xs transition-colors">
+                            Confirm Rate
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500 italic flex items-center gap-2"><Clock size={14} /> Pending Carrier Proposal</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+        {loads.length === 0 && (
+          <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-white/5 border-dashed">
+            <p className="text-slate-500 font-medium">No loads found. Create one to get started.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
