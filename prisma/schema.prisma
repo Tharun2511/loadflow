@@ -25,6 +25,7 @@ model User {
 
   loadsAsShipper Load[]        @relation("ShipperLoads")
   auditLogs      LoadAuditLog[]
+  podsUploaded   Pod[]
 }
 
 model Organization {
@@ -63,31 +64,49 @@ model CarrierCompliance {
   insuranceExpiry DateTime
   mcDotStatus     String       // "ACTIVE", "INACTIVE", "PENDING"
   equipmentTypes  String       // JSON array of strings e.g. '["VAN", "REEFER"]'
+  commodityTypes  String       @default("[]") // JSON array of approved commodities e.g. '["GENERAL", "FOOD"]'
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 }
 
 model Load {
-  id              String       @id @default(uuid())
-  origin          String
-  destination     String
-  status          String       // "POSTED", "CARRIER_ASSIGNED", "RATE_CONFIRMED", "DISPATCHED", "IN_TRANSIT", "DELIVERED", "POD_VERIFIED", "CLOSED"
-  complianceFlag  Boolean      @default(false)
-  
+  id                   String       @id @default(uuid())
+  origin               String
+  destination          String
+  status               String       // "POSTED", "CARRIER_ASSIGNED", "RATE_CONFIRMED", "DISPATCHED", "IN_TRANSIT", "DELIVERED", "POD_VERIFIED", "CLOSED"
+  equipmentType        String?      // Required equipment for this load e.g. "REEFER"
+  commodityType        String?      // Commodity being shipped e.g. "FOOD"
+  complianceFlag       Boolean      @default(false)
+  complianceFlagReason String?      // Human-readable reason the load was flagged
+  carrierAccepted      Boolean      @default(false) // Assigned carrier has accepted the load
+
   shipperId       String
   shipper         User         @relation("ShipperLoads", fields: [shipperId], references: [id])
-  
+
   brokerOrgId     String
   brokerOrg       Organization @relation("BrokerLoads", fields: [brokerOrgId], references: [id])
-  
+
   carrierOrgId    String?
   carrierOrg      Organization? @relation("CarrierLoads", fields: [carrierOrgId], references: [id])
-  
+
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
-  
+
   rateConfirmations RateConfirmation[]
   auditLogs         LoadAuditLog[]
+  pod               Pod?
+}
+
+model Pod {
+  id           String   @id @default(uuid())
+  loadId       String   @unique
+  load         Load     @relation(fields: [loadId], references: [id])
+  fileName     String
+  fileType     String
+  dataUrl      String   // base64 data-URL of the uploaded proof-of-delivery file
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime @default(now())
 }
 
 model LoadAuditLog {
