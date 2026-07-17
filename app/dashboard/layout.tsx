@@ -32,7 +32,12 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-6">
               {user && (
                 <div className="flex items-center gap-4">
-                  <div className="text-right hidden sm:block">
+                  {user.rolePermissions?.includes('staff.manage') && (
+                    <Link href="/dashboard/admin" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                      Team Settings
+                    </Link>
+                  )}
+                  <div className="text-right hidden sm:block border-l border-white/10 pl-4">
                     <p className="text-sm font-medium text-slate-200">{user.name}</p>
                     <p className="text-xs text-slate-500">{user.email}</p>
                   </div>
