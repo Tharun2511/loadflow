@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { registerOrganization, registerShipper } from "@/app/actions/auth"
-import { ArrowRight, Building2, Truck, UserCircle } from "lucide-react"
+import { ArrowLeft, ArrowRight, Building2, Truck, UserCircle } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -56,6 +57,9 @@ export default function RegisterPage() {
       </div>
 
       <div className="relative w-full max-w-xl p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-indigo-200/60 hover:text-white transition-colors mb-6">
+          <ArrowLeft size={16} /> Back to home
+        </Link>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 mb-2">Create an Account</h1>
           <p className="text-indigo-200/60 text-sm font-medium">Join the LoadFlow network</p>

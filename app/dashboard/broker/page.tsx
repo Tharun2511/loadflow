@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { PrismaClient } from "@prisma/client"
 import { createLoad, assignCarrier, overrideCompliance, confirmRate } from "@/app/actions/load"
 import { EQUIPMENT_TYPES, COMMODITY_TYPES } from "@/lib/permissions"
+import { SubmitButton } from "@/components/submit-button"
 import { CheckCircle2, Clock, FileText, Plus, ShieldAlert, Truck, Search, Filter } from "lucide-react"
 
 const prisma = new PrismaClient()
@@ -87,9 +88,9 @@ export default async function BrokerDashboard(props: { searchParams?: Promise<{ 
               <option value="">Commodity...</option>
               {COMMODITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors flex items-center gap-2">
+            <SubmitButton pendingLabel="Posting..." className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors flex items-center gap-2">
               <Plus size={16} /> <span className="hidden sm:inline">Post Load</span>
-            </button>
+            </SubmitButton>
           </form>
         )}
       </div>
@@ -220,9 +221,9 @@ export default async function BrokerDashboard(props: { searchParams?: Promise<{ 
                           <option value="">Select Carrier...</option>
                           {carriers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
-                        <button type="submit" className="px-3 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 font-medium text-sm transition-colors">
+                        <SubmitButton pendingLabel="Assigning..." className="px-3 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 font-medium text-sm transition-colors">
                           Assign
-                        </button>
+                        </SubmitButton>
                       </form>
                     ) : (
                       <p className="text-sm text-slate-500 italic">Not assigned</p>
@@ -250,9 +251,9 @@ export default async function BrokerDashboard(props: { searchParams?: Promise<{ 
                             "use server"
                             await confirmRate(latestRate.id)
                           }}>
-                            <button type="submit" className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-medium text-xs transition-colors">
+                            <SubmitButton pendingLabel="Confirming..." className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-medium text-xs transition-colors">
                               Confirm Rate
-                            </button>
+                            </SubmitButton>
                           </form>
                         )}
                       </div>

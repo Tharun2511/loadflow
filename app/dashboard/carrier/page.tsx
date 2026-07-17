@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client"
 import { proposeRate, updateLoadStatus, acceptLoad, declineLoad } from "@/app/actions/load"
 import { updateCompliance } from "@/app/actions/compliance"
 import { PodUpload } from "@/components/pod-upload"
+import { SubmitButton } from "@/components/submit-button"
 import { EQUIPMENT_TYPES, COMMODITY_TYPES, MC_DOT_STATUSES } from "@/lib/permissions"
 import { AlertTriangle, Check, DollarSign, FileCheck, FileText, MapPin, Navigation, ShieldAlert, X } from "lucide-react"
 
@@ -110,14 +111,14 @@ export default async function CarrierDashboard() {
                     hasPermission('load.accept_decline') ? (
                       <div className="flex items-center gap-3 mb-6">
                         <form action={async () => { "use server"; await acceptLoad(load.id) }}>
-                          <button type="submit" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-medium text-sm transition-colors">
+                          <SubmitButton pendingLabel="Accepting..." className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-medium text-sm transition-colors">
                             <Check size={16} /> Accept Load
-                          </button>
+                          </SubmitButton>
                         </form>
                         <form action={async () => { "use server"; await declineLoad(load.id) }}>
-                          <button type="submit" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-medium text-sm transition-colors border border-white/10">
+                          <SubmitButton pendingLabel="Declining..." className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-medium text-sm transition-colors border border-white/10">
                             <X size={16} /> Decline
-                          </button>
+                          </SubmitButton>
                         </form>
                       </div>
                     ) : (
@@ -141,9 +142,9 @@ export default async function CarrierDashboard() {
                             <span className="absolute left-3 top-2 text-slate-500">$</span>
                             <input type="number" name="accessorials" placeholder="Accessorials" defaultValue="0" required className="w-full pl-7 pr-3 py-2 rounded-lg bg-slate-800 border border-white/10 text-sm text-white focus:outline-none focus:border-indigo-500" />
                           </div>
-                          <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors">
+                          <SubmitButton pendingLabel="Sending..." className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors">
                             Propose
-                          </button>
+                          </SubmitButton>
                         </form>
                       ) : latestRate ? (
                         <div className="flex items-center gap-2">
@@ -170,9 +171,9 @@ export default async function CarrierDashboard() {
                             {load.status === 'DISPATCHED' && <option value="IN_TRANSIT">In Transit</option>}
                             {load.status === 'IN_TRANSIT' && <option value="DELIVERED">Mark Delivered</option>}
                           </select>
-                          <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 font-medium text-sm transition-colors flex items-center gap-2">
+                          <SubmitButton pendingLabel="Updating..." className="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 font-medium text-sm transition-colors flex items-center gap-2">
                             <Navigation size={14} /> Update
-                          </button>
+                          </SubmitButton>
                         </form>
                       )}
 
@@ -271,9 +272,9 @@ export default async function CarrierDashboard() {
                   </div>
                 </div>
 
-                <button type="submit" className="w-full py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition-colors text-sm font-medium">
+                <SubmitButton pendingLabel="Saving..." className="w-full flex items-center justify-center py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white transition-colors text-sm font-medium">
                   Save Compliance Record
-                </button>
+                </SubmitButton>
               </form>
             ) : compliance ? (
               <div className="space-y-4">

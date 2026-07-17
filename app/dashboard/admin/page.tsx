@@ -4,9 +4,11 @@ import { PrismaClient } from "@prisma/client"
 import { createRole, deleteRole, removeStaff } from "@/app/actions/admin"
 import { createStaffMember } from "@/app/actions/auth"
 import { PERMISSION_CATALOG } from "@/lib/permissions"
-import { Shield, Users, Trash2 } from "lucide-react"
+import { SubmitButton } from "@/components/submit-button"
+import { Shield, Users, Trash2, ArrowLeft } from "lucide-react"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 
 const prisma = new PrismaClient()
 
@@ -36,6 +38,9 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-3">
+          <ArrowLeft size={16} /> Back to dashboard
+        </Link>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Team &amp; Roles</h1>
         <p className="text-slate-400">Manage your organization&apos;s staff members and define custom access roles.</p>
       </div>
@@ -75,9 +80,9 @@ export default async function AdminDashboard() {
                 ))}
               </div>
             </div>
-            <button type="submit" className="w-full px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors">
+            <SubmitButton pendingLabel="Creating..." className="w-full flex items-center justify-center px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-medium text-sm transition-colors">
               Create Custom Role
-            </button>
+            </SubmitButton>
           </form>
 
           <div>
@@ -145,9 +150,9 @@ export default async function AdminDashboard() {
                 <input type="password" name="password" required className="w-full px-4 py-2 rounded-xl bg-slate-800 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500" />
               </div>
             </div>
-            <button type="submit" className="w-full px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/50 hover:bg-blue-500/30 text-blue-400 font-medium text-sm transition-colors">
+            <SubmitButton pendingLabel="Inviting..." className="w-full flex items-center justify-center px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/50 hover:bg-blue-500/30 text-blue-400 font-medium text-sm transition-colors">
               Invite Staff Member
-            </button>
+            </SubmitButton>
           </form>
 
           <div>

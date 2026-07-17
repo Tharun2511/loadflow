@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -40,7 +41,7 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 mb-2 tracking-tight">LoadFlow</h1>
+          <Link href="/" className="inline-block text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 mb-2 tracking-tight hover:opacity-90 transition-opacity">LoadFlow</Link>
           <p className="text-indigo-200/60 text-sm font-medium">Freight Brokerage Operations Suite</p>
         </div>
 

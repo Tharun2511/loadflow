@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { PrismaClient } from "@prisma/client"
 import { redirect } from "next/navigation"
-import { History, ArrowRight } from "lucide-react"
+import { History, ArrowRight, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 const prisma = new PrismaClient()
 
@@ -34,11 +35,16 @@ export default async function AuditLogPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <History size={26} className="text-indigo-400" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Audit Trail</h1>
-          <p className="text-slate-400">Every attributed load state change across your organization.</p>
+      <div>
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-3">
+          <ArrowLeft size={16} /> Back to dashboard
+        </Link>
+        <div className="flex items-center gap-3">
+          <History size={26} className="text-indigo-400" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white">Audit Trail</h1>
+            <p className="text-slate-400">Every attributed load state change across your organization.</p>
+          </div>
         </div>
       </div>
 
