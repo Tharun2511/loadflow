@@ -30,10 +30,6 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-8">
-          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-          Hackathon Edition
-        </div>
         
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
           The Operating System for <br />
