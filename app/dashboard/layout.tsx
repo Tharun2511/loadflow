@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import Link from "next/link"
-import { LogOut, LayoutDashboard, Truck, ShieldAlert } from "lucide-react"
+import { LogOut, Truck } from "lucide-react"
 
 export default async function DashboardLayout({
   children,
@@ -32,6 +32,11 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-6">
               {user && (
                 <div className="flex items-center gap-4">
+                  {(user.type === 'BROKER' || user.type === 'CARRIER') && (
+                    <Link href="/dashboard/audit" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                      Audit Log
+                    </Link>
+                  )}
                   {user.rolePermissions?.includes('staff.manage') && (
                     <Link href="/dashboard/admin" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                       Team Settings

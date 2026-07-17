@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { PrismaClient } from "@prisma/client"
-import { MapPin, Package, History } from "lucide-react"
+import { Package, History, FileText } from "lucide-react"
 
 const prisma = new PrismaClient()
 
@@ -18,6 +18,7 @@ export default async function ShipperDashboard() {
     include: {
       brokerOrg: true,
       carrierOrg: true,
+      pod: true,
       auditLogs: {
         orderBy: { timestamp: 'desc' },
         take: 3
@@ -62,6 +63,12 @@ export default async function ShipperDashboard() {
                   </span>
                   {load.carrierOrg && (
                     <p className="text-xs text-slate-500 mt-2">Carrier: {load.carrierOrg.name}</p>
+                  )}
+                  {load.pod && (
+                    <a href={load.pod.dataUrl} target="_blank" rel="noopener noreferrer" download={load.pod.fileName}
+                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium transition-colors border border-emerald-500/20">
+                      <FileText size={14} /> Proof of Delivery
+                    </a>
                   )}
                 </div>
               </div>
