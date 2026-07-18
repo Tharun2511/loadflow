@@ -6,7 +6,7 @@ An operations platform for a freight brokerage that connects **shippers**, **bro
 
 ## ▶︎ Live demo & login
 
-**Live app:** https://loadflow-ops.vercel.app  <!-- update to your final Vercel URL -->
+**Live app:** https://loadflow-app.vercel.app/
 
 **Every account below uses the password `password123`.** Log in at `/login`. No signup needed to review — just use these seeded accounts (you can also register a brand-new org from the landing page).
 
