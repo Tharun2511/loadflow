@@ -1,11 +1,9 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { History, ArrowRight, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-
-const prisma = new PrismaClient()
 
 // Org-scoped audit log viewer: every attributed, timestamped load state
 // change for the caller's organization.

@@ -1,10 +1,8 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { requirePermission } from "@/lib/rbac"
 import { revalidatePath } from "next/cache"
-
-const prisma = new PrismaClient()
 
 // Carrier compliance record CRUD (upsert). Gated by `compliance.manage`
 // and scoped to the caller's own carrier organization.

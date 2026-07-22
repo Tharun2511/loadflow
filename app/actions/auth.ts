@@ -1,11 +1,9 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { requirePermission } from "@/lib/rbac"
 import { BROKER_ADMIN_PERMISSIONS, CARRIER_ADMIN_PERMISSIONS } from "@/lib/permissions"
-
-const prisma = new PrismaClient()
 
 // Bootstrap: Create the first Admin for a new Organization
 export async function registerOrganization(data: {

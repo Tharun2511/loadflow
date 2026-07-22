@@ -1,12 +1,10 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
-import { createLoad, assignCarrier, overrideCompliance, confirmRate } from "@/app/actions/load"
+import { prisma } from "@/lib/prisma"
+import { createLoad, assignCarrier, overrideCompliance, confirmRate, updateLoadStatus } from "@/app/actions/load"
 import { EQUIPMENT_TYPES, COMMODITY_TYPES } from "@/lib/permissions"
 import { SubmitButton } from "@/components/submit-button"
 import { CheckCircle2, Clock, FileText, Plus, ShieldAlert, Truck, Search, Filter } from "lucide-react"
-
-const prisma = new PrismaClient()
 
 export default async function BrokerDashboard(props: { searchParams?: Promise<{ search?: string, status?: string }> }) {
   const searchParams = await props.searchParams;
@@ -253,6 +251,16 @@ export default async function BrokerDashboard(props: { searchParams?: Promise<{ 
                           }}>
                             <SubmitButton pendingLabel="Confirming..." className="px-3 py-1.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-medium text-xs transition-colors">
                               Confirm Rate
+                            </SubmitButton>
+                          </form>
+                        )}
+                        {load.status === 'POD_VERIFIED' && hasPermission('load.update_status') && (
+                          <form action={async () => {
+                            "use server"
+                            await updateLoadStatus(load.id, 'CLOSED')
+                          }}>
+                            <SubmitButton pendingLabel="Closing..." className="px-3 py-1.5 rounded bg-slate-600/40 hover:bg-slate-600/60 text-slate-200 font-medium text-xs transition-colors">
+                              Close / Invoice
                             </SubmitButton>
                           </form>
                         )}

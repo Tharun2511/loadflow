@@ -1,14 +1,12 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { proposeRate, updateLoadStatus, acceptLoad, declineLoad } from "@/app/actions/load"
 import { updateCompliance } from "@/app/actions/compliance"
 import { PodUpload } from "@/components/pod-upload"
 import { SubmitButton } from "@/components/submit-button"
 import { EQUIPMENT_TYPES, COMMODITY_TYPES, MC_DOT_STATUSES } from "@/lib/permissions"
 import { AlertTriangle, Check, DollarSign, FileCheck, FileText, MapPin, Navigation, ShieldAlert, X } from "lucide-react"
-
-const prisma = new PrismaClient()
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { createRole, deleteRole, removeStaff } from "@/app/actions/admin"
 import { createStaffMember } from "@/app/actions/auth"
 import { PERMISSION_CATALOG } from "@/lib/permissions"
@@ -9,8 +9,6 @@ import { Shield, Users, Trash2, ArrowLeft } from "lucide-react"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-
-const prisma = new PrismaClient()
 
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions)

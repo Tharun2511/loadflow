@@ -1,11 +1,9 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { requirePermission } from "@/lib/rbac"
 import { PERMISSION_CATALOG } from "@/lib/permissions"
 import { revalidatePath } from "next/cache"
-
-const prisma = new PrismaClient()
 
 const VALID_PERMISSIONS = new Set(PERMISSION_CATALOG.map((p) => p.key))
 

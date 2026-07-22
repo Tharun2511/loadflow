@@ -1,10 +1,8 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { requireAuth, requirePermission, requireOwnership } from "@/lib/rbac"
 import { revalidatePath } from "next/cache"
-
-const prisma = new PrismaClient()
 
 async function addAuditLog(loadId: string, oldStatus: string, newStatus: string, userId: string) {
   await prisma.loadAuditLog.create({
